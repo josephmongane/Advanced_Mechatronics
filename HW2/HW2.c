@@ -5,7 +5,11 @@ int main()
     stdio_init_all();
     while (true) {
         int i; 
-        for (i=10; i<=170; i++) {
+        for (i=10; i<170; i++) {
+            set_servo_postion(i);
+            sleep_ms(20);
+        }
+        for (i=170; i>10; i--) {
             set_servo_postion(i);
             sleep_ms(20);
         }
@@ -28,6 +32,6 @@ void init_servo_pwm() {
 
 void set_servo_postion(int angle) {
     int duty;
-    duty = angle*60000/180; 
-     pwm_set_gpio_level(SERVO, duty);
+    duty = (int)(0.05 + angle*0.05/180)*60000; 
+    pwm_set_gpio_level(SERVO, duty);
 }
