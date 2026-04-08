@@ -2,6 +2,7 @@
 
 int main()
 {
+    init_servo_pwm();
     stdio_init_all();
     while (true) {
         int i; 
