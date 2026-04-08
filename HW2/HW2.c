@@ -11,7 +11,11 @@ int main()
         int i;
         for (i=0; i<180; i++) {
             set_servo_postion(i);
-            sleep_ms(100);
+            sleep_ms(10);
+        }
+        for (i=180; i>0; i--) {
+            set_servo_postion(i);
+            sleep_ms(10);
         }
     }
 }
@@ -31,5 +35,5 @@ void init_servo_pwm() {
 }
 
 void set_servo_postion(float angle) { 
-    pwm_set_gpio_level(SERVO, (int)((0.01 + angle*0.11/180.0)*60000));
+    pwm_set_gpio_level(SERVO, (int)((0.02 + angle*0.11/180.0)*60000));
 }
