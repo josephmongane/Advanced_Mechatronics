@@ -2,17 +2,16 @@
 
 int main()
 {
-    init_servo_pwm();
     stdio_init_all();
+    init_servo_pwm();
+    while(!stdio_usb_connected());
+    sleep_ms(100);
+    printf("Usb connected\n");
     while (true) {
-        int i; 
-        for (i=10; i<170; i++) {
+        int i;
+        for (i=0; i<180; i++) {
             set_servo_postion(i);
-            sleep_ms(20);
-        }
-        for (i=170; i>10; i--) {
-            set_servo_postion(i);
-            sleep_ms(20);
+            sleep_ms(100);
         }
     }
 }
@@ -31,8 +30,6 @@ void init_servo_pwm() {
     pwm_set_enabled(slice_num, true); // turn on the PWM
 }
 
-void set_servo_postion(int angle) {
-    int duty;
-    duty = (int)(0.05 + angle*0.05/180)*60000; 
-    pwm_set_gpio_level(SERVO, duty);
+void set_servo_postion(float angle) { 
+    pwm_set_gpio_level(SERVO, (int)((0.01 + angle*0.11/180.0)*60000));
 }
