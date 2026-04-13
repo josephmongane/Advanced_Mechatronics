@@ -12,4 +12,4 @@
 
 void init_mpc(); 
 int read_mpc(int pin);
-void write_mpc(int pin, int value);
+void write_mpc(int pin, uint8_t value);

@@ -18,19 +18,14 @@ int main()
     // Initialize the pins as GPIO outputs
     init_mpc();
 
-    // Send data 
-    buf[0] = 0x0A; 
-    buf[1] = 0b10000000; 
-    i2c_write_blocking(i2c_default, ADDR, buf, 2, false); 
-
-
     while (true) {
-        int result = read_mpc(0);
+        while (read_mpc(0)) {
+            tight_loop_contents();
+        }
         write_mpc(6, 1);
-        sleep_ms(500); 
+        sleep_ms(200); 
         write_mpc(6, 0);
-        printf("Value %d\n", result);
-        sleep_ms(500); 
+        sleep_ms(200); 
     }
 }
 
@@ -41,7 +36,7 @@ void init_mpc() {
     i2c_write_blocking(i2c_default, ADDR, buf, 2, false); 
 }
 
-int read_mpc(int pin) {
+bool read_mpc(int pin) {
     int out; 
     uint8_t read_reg[2];
     read_reg[0] = 0x09;
@@ -49,7 +44,7 @@ int read_mpc(int pin) {
     i2c_write_blocking(i2c_default, ADDR, &read_reg[0], 1, true);  // true to keep host control of bus
     i2c_read_blocking(i2c_default, ADDR, &read_reg[1], 1, false);  // false - finished with bus
     out = (pin_bit & read_reg[1]) >> pin;
-    return out;
+    return (bool) out;
 }
 
 void write_mpc(int pin, uint8_t value) {
