@@ -11,3 +11,5 @@
 #define ADDR 0b0100000
 
 void init_mpc(); 
+int read_mpc(int pin);
+void write_mpc(int pin, int value);
