@@ -52,12 +52,18 @@ int read_mpc(int pin) {
     return out;
 }
 
-void write_mpc(int pin, int value) {
+void write_mpc(int pin, uint8_t value) {
     uint8_t write_buf[2];
     write_buf[0] = 0x0A; 
     i2c_write_blocking(i2c_default, ADDR, &write_buf[0], 1, true);  // true to keep host control of bus
     i2c_read_blocking(i2c_default, ADDR, &write_buf[1], 1, false);  // false - finished with bus
-    write_buf[1] = (write_buf[1]) | (value << pin); 
-    i2c_write_blocking(i2c_default, ADDR, write_buf, 2, false); 
+    if (value == 1) {
+        write_buf[1] = ((value << pin) | write_buf[1]); 
+        i2c_write_blocking(i2c_default, ADDR, write_buf, 2, false); 
+    }
+    if (value == 0) {
+        write_buf[1] = (write_buf[1] & (~(1 << pin))); 
+        i2c_write_blocking(i2c_default, ADDR, write_buf, 2, false); 
+    }
 }
 
