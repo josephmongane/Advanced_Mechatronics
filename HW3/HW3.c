@@ -19,9 +19,14 @@ int main()
     init_mpc();
 
     while (true) {
-        while (read_mpc(0)) {
-            tight_loop_contents();
+        while (read_mpc(0) == 1) {
+            write_mpc(7, 1);
+            write_mpc(6, 1);
+            sleep_ms(200); 
+            write_mpc(6, 0);
+            sleep_ms(200); 
         }
+        write_mpc(7, 0);
         write_mpc(6, 1);
         sleep_ms(200); 
         write_mpc(6, 0);
