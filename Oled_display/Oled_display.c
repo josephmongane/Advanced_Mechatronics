@@ -1,17 +1,23 @@
 #include "Oled_display.h"
 
 char text[25]; 
-
+uint16_t result; 
+float voltage = 0;
 
 int main()
 {
     stdio_init_all();
     init_screen();
     sprintf(text, "Test...");
+    adc_init();
+    adc_gpio_init(26);
+    adc_select_input(0); 
+
     while(!stdio_usb_connected());
 
     while (true) {
-        sprintf(text, "Test Message..."); 
+        result = adc_read(); 
+        sprintf(text, "Voltage = %d", (int)result);
         draw_message(1, 1, text); 
         ssd1306_update();
         gpio_put(16, 1);
