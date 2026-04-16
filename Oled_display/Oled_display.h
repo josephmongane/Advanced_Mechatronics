@@ -1,6 +1,7 @@
 #ifndef OLED_DISPLAY_H
 
 #include <stdio.h>
+#include <string.h> // for memset
 #include "pico/stdlib.h"
 #include "hardware/i2c.h"
 #include "ssd1306.h"
@@ -14,5 +15,6 @@
 #define I2C_SCL 5
 
 void init_screen(void);
+void draw_letter(unsigned char x, unsigned char y, char letter);
 
 #endif

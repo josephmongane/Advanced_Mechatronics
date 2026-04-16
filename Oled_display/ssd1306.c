@@ -1,6 +1,5 @@
 // based on adafruit and sparkfun libraries
 
-#include <string.h> // for memset
 #include "Oled_display.h"
 
 
