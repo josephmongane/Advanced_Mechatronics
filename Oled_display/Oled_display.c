@@ -1,15 +1,18 @@
 #include "Oled_display.h"
 
-char text[20]; 
+char text[25]; 
 
 
 int main()
 {
     stdio_init_all();
     init_screen();
+    sprintf(text, "Test...");
+    while(!stdio_usb_connected());
 
     while (true) {
-        draw_letter(1, 1, 'r');
+        sprintf(text, "Test Message..."); 
+        draw_message(1, 1, text); 
         ssd1306_update();
         gpio_put(16, 1);
         sleep_ms(1000); 
@@ -50,7 +53,7 @@ void draw_letter(unsigned char x, unsigned char y, char letter) {
 }
 
 void draw_message(unsigned char x, unsigned char y, char *message) {
-    char letter; 
+    char letter = 'o'; 
     int i = 0; 
     int length_message = 0; 
     while (letter != '\0') {

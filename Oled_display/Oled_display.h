@@ -4,6 +4,7 @@
 #include <string.h> // for memset
 #include "pico/stdlib.h"
 #include "hardware/i2c.h"
+#include "hardware/adc.h"
 #include "ssd1306.h"
 #include "font.h"
 
@@ -16,5 +17,6 @@
 
 void init_screen(void);
 void draw_letter(unsigned char x, unsigned char y, char letter);
+void draw_message(unsigned char x, unsigned char y, char *message);
 
 #endif
