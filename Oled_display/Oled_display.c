@@ -57,6 +57,8 @@ void draw_message(unsigned char x, unsigned char y, char *message) {
         length_message++;
         letter = message[length_message];
     }
-    for (i = 0; i > length_message; )
+    for (i = 0; i < length_message; i++) {
+        draw_letter((x + 5*i), y, message[i]);
+    }
 }
 
