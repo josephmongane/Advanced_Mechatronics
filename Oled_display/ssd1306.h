@@ -1,6 +1,7 @@
 #ifndef SSD1306_H__
 #define SSD1306_H__
 
+
 // Based on the adafruit and sparkfun libraries
 #define SSD1306_MEMORYMODE          0x20 
 #define SSD1306_COLUMNADDR          0x21 

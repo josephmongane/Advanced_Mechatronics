@@ -1,9 +1,8 @@
 // based on adafruit and sparkfun libraries
 
 #include <string.h> // for memset
-#include "ssd1306.h"
-#include "hardware/i2c.h"
-#include "pico/stdlib.h"
+#include "Oled_display.h"
+
 
 unsigned char SSD1306_ADDRESS = 0b0111100; // 7bit i2c address
 unsigned char ssd1306_buffer[513]; // 128x32/8. Every bit is a pixel except first byte

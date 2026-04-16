@@ -57,6 +57,5 @@ target_include_directories(Oled_display PRIVATE
 target_link_libraries(Oled_display 
         hardware_i2c
         )
-
 pico_add_extra_outputs(Oled_display)
 
