@@ -20,21 +20,19 @@ int main()
     prev_time = to_us_since_boot(get_absolute_time());  
     while (true) {
         result = adc_read(); 
-        time = to_us_since_boot(get_absolute_time());  
-        sprintf(text_time, "FPS = %.4f", 1/((time - prev_time)/1000000.0));
+        prev_time = to_us_since_boot(get_absolute_time()); 
+        ssd1306_clear();
         sprintf(text, "Voltage = %d", (int)result);
         draw_message(0, 0, text); 
+        ssd1306_update();
+        time = to_us_since_boot(get_absolute_time());  
+        sprintf(text_time, "FPS = %.4f", 1/((time - prev_time)/1000000.0));
         draw_message(10, 20, text_time); 
         ssd1306_update();
-        prev_time = to_us_since_boot(get_absolute_time());  
-        /*
         gpio_put(16, 1);
         sleep_ms(1000); 
-        ssd1306_clear();
-        ssd1306_update();
         gpio_put(16, 0);
         sleep_ms(1000);
-        */
     }
 }
 
