@@ -13,5 +13,6 @@
 #define I2C_SCREEN_SCL 9
 
 void init_screen();
+void draw_line(float x_accel, float y_accel);
 
 #endif

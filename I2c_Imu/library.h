@@ -34,7 +34,7 @@
 
 #define WHO_AM_I     0x75
 
-#endif
-
 uint8_t innit_imu(); 
 void combine_data(uint8_t *data_array, double *clean_data);
+
+#endif

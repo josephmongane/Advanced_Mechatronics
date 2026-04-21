@@ -22,14 +22,6 @@ int main()
     int i; 
 
     while (true) {
-        gpio_put(16, 1);
-        ssd1306_drawPixel(2,2,1);
-        ssd1306_update();
-        sleep_ms(100);
-        gpio_put(16, 0);
-        ssd1306_clear(); 
-        ssd1306_update();
-        sleep_ms(100); 
         imu_data[0] = ACCEL_XOUT_H; 
         i2c_write_blocking(i2c_default, IMU_ADDR, &imu_data[0], 1, true); 
         i2c_read_blocking(i2c_default, IMU_ADDR, &imu_data[1], 14, false);  
@@ -38,6 +30,14 @@ int main()
         for (i = 0; i < 7; i++) {
             printf("%f\n", combined_data[i]);
         }
+        gpio_put(16, 1);
+        draw_line(combined_data[0], combined_data[1]);
+        ssd1306_update();
+        sleep_ms(100);
+        gpio_put(16, 0);
+        ssd1306_clear(); 
+        ssd1306_update();
+        sleep_ms(100); 
     }
 }
 
@@ -95,4 +95,53 @@ void combine_data(uint8_t *data_array, double *clean_data) {
     clean_data[4] = (combined[4] * 0.00736) - 5.75;  
     clean_data[5] = (combined[5] * 0.00736) + 6;
     clean_data[6] = (combined[6] * 0.00736) - 8.75;
+}
+
+void draw_line(float x_accel, float y_accel) {
+    int len_x = (int)(x_accel * 15);
+    int len_y = (int)(y_accel * 15);
+    int i;
+
+    int x0 = 64;
+    int y0 = 16;
+
+    // Compute clamped endpoints
+    int x_end = x0 + len_x;
+    int y_end = y0 + len_y;
+
+    // Clamp to screen bounds
+    if (x_end < 0) x_end = 0;
+    if (x_end > 127) x_end = 127;
+    if (y_end < 0) y_end = 0;
+    if (y_end > 63) y_end = 63;
+
+    // ---- X direction ----
+    if (len_x > 0) {
+        for (i = x0; i <= x_end; i++) {
+            ssd1306_drawPixel(i, 17, 1);
+            ssd1306_drawPixel(i, 16, 1);
+            ssd1306_drawPixel(i, 15, 1);
+        }
+    } else {
+        for (i = x0; i >= x_end; i--) {
+            ssd1306_drawPixel(i, 17, 1);
+            ssd1306_drawPixel(i, 16, 1);
+            ssd1306_drawPixel(i, 15, 1);
+        }
+    }
+
+    // ---- Y direction ----
+    if (len_y > 0) {
+        for (i = y0; i <= y_end; i++) {
+            ssd1306_drawPixel(65, i, 1);
+            ssd1306_drawPixel(64, i, 1);
+            ssd1306_drawPixel(63, i, 1);
+        }
+    } else {
+        for (i = y0; i >= y_end; i--) {
+            ssd1306_drawPixel(65, i, 1);
+            ssd1306_drawPixel(64, i, 1);
+            ssd1306_drawPixel(63, i, 1);
+        }
+    }
 }
