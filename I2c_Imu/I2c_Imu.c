@@ -25,8 +25,8 @@ int main()
         i2c_write_blocking(i2c_default, IMU_ADDR, &imu_data[0], 1, true); 
         i2c_read_blocking(i2c_default, IMU_ADDR, &imu_data[1], 14, false);  
         combine_data(imu_data, combined_data);
-        for (i = 0; i < 14; i++) {
-            printf("%d\n", imu_data[i]);
+        for (i = 0; i < 7; i++) {
+            printf("%d\n", combined_data[i]);
         }
     }
 }
