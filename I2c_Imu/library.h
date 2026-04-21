@@ -35,4 +35,4 @@
 
 #endif
 
-void innit_imu(); 
+uint8_t innit_imu(); 
