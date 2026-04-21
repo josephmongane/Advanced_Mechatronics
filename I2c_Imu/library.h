@@ -38,4 +38,4 @@
 #endif
 
 uint8_t innit_imu(); 
-void combine_data(uint8_t *data_array, float *clean_data);
+void combine_data(uint8_t *data_array, double *clean_data);
