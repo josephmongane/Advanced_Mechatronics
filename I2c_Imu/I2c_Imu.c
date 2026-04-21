@@ -18,9 +18,9 @@ int main()
 
     while (true) {
         gpio_put(16, 1);
-        sleep_ms(1000);
+        sleep_ms(100);
         gpio_put(16, 0);
-        sleep_ms(1000); 
+        sleep_ms(100); 
         imu_data[0] = ACCEL_XOUT_H; 
         i2c_write_blocking(i2c_default, IMU_ADDR, &imu_data[0], 1, true); 
         i2c_read_blocking(i2c_default, IMU_ADDR, &imu_data[1], 14, false);  
