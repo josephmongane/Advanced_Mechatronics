@@ -9,7 +9,7 @@ int main()
     stdio_init_all();
     while(!stdio_usb_connected()); 
     uint8_t output;
-    uint8_t imu_data[14]; 
+    uint8_t imu_data[15]; 
     double combined_data[7];
     sleep_ms(100);
     output = innit_imu();
@@ -25,6 +25,7 @@ int main()
         i2c_write_blocking(i2c_default, IMU_ADDR, &imu_data[0], 1, true); 
         i2c_read_blocking(i2c_default, IMU_ADDR, &imu_data[1], 14, false);  
         combine_data(imu_data, combined_data);
+        printf("------New Data------ \n");
         for (i = 0; i < 7; i++) {
             printf("%f\n", combined_data[i]);
         }
@@ -67,21 +68,20 @@ uint8_t innit_imu() {
 
 void combine_data(uint8_t *data_array, double *clean_data) {
     signed short combined[7];
-    int i; 
-    for (i = 0; i < 14; i += 2) {
-        combined[i/2] = (signed short) ((data_array[i]<<8) | data_array[i+1]);
+    int i;
+    for (i = 1; i < 15; i += 2) {
+        combined[i/2] = (signed short)((data_array[i] << 8) | data_array[i+1]);
     }
-    
+
     for (i = 0; i < 7; i++) {
         if (i < 3) {
-            clean_data[i] = combined[i]*0.000061;
+            clean_data[i] = combined[i] * 0.000061;
         }
         if (i == 3) {
-            clean_data[i] = 36.53 + (combined[i]/340.0);
+            clean_data[i] = 36.53 + (combined[i] / 340.0);
         }
         if (i >= 4) {
-            clean_data[i] = combined[i]*0.00736;
+            clean_data[i] = combined[i] * 0.00736;
         }
     }
-    
 }
