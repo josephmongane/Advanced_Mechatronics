@@ -16,6 +16,7 @@
 #define ACCEL_CONFIG 0x1C
 #define PWR_MGMT_1 0x6B
 #define PWR_MGMT_2 0x6C
+
 // sensor data registers:
 #define ACCEL_XOUT_H 0x3B
 #define ACCEL_XOUT_L 0x3C
@@ -31,8 +32,10 @@
 #define GYRO_YOUT_L  0x46
 #define GYRO_ZOUT_H  0x47
 #define GYRO_ZOUT_L  0x48
+
 #define WHO_AM_I     0x75
 
 #endif
 
 uint8_t innit_imu(); 
+void combine_data(uint8_t *data_array, uint16_t *clean_data);
