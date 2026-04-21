@@ -51,8 +51,8 @@ uint8_t innit_imu() {
 
      
     imu_register[0] = GYRO_CONFIG;
-    imu_register[1] = 0b11000;
-    imu_register[2] = 0b00000;
+    imu_register[1] = 0b11111000;
+    imu_register[2] = 0b11100000;
 
     i2c_write_blocking(i2c_default, IMU_ADDR, imu_register, 3, false); 
 
@@ -67,7 +67,7 @@ uint8_t innit_imu() {
 
 void combine_data(uint8_t *data_array, uint16_t *clean_data) {
     int i; 
-    for (i = 0; i>14; i += 2) {
-       // clean_data[i/2] = ((data_array[i]<<8) | data_array[i + 1]);
+    for (i = 0; i < 14; i += 2) {
+        clean_data[i] = ((data_array[i]<<8) | data_array[i+1]);
     }
 }
