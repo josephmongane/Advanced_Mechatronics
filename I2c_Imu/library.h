@@ -1,6 +1,5 @@
 #ifndef LIBRARY_H
 
-#include <stdio.h>
 #include "pico/stdlib.h"
 #include "hardware/i2c.h"
  //i2c registeers

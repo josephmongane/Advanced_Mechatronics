@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include "library.h"
 #include "Oled_display.h"
 
@@ -15,12 +17,17 @@ int main()
     sleep_ms(100);
     output = innit_imu();
     printf("output = %d\n", output); 
+    init_screen(); 
     int i; 
 
     while (true) {
         gpio_put(16, 1);
+        ssd1306_drawPixel(2,2,1);
+        ssd1306_update();
         sleep_ms(100);
         gpio_put(16, 0);
+        ssd1306_drawPixel(2,2,0);
+        ssd1306_update();
         sleep_ms(100); 
         imu_data[0] = ACCEL_XOUT_H; 
         i2c_write_blocking(i2c_default, IMU_ADDR, &imu_data[0], 1, true); 
@@ -67,18 +74,31 @@ uint8_t innit_imu() {
     return imu_data[1];
 }
 
+void init_screen(void) {
+
+    // I2C Initialisation. Using it at 400Khz.
+    i2c_init(I2C_SCREEN_PORT, 400*1000);
+    
+    gpio_set_function(I2C_SCREEN_SDA, GPIO_FUNC_I2C);
+    gpio_set_function(I2C_SCREEN_SCL, GPIO_FUNC_I2C);
+    // For more examples of I2C use see https://github.com/raspberrypi/pico-examples/tree/master/i2c
+
+    ssd1306_setup();
+}
+
+
+
 void combine_data(uint8_t *data_array, double *clean_data) {
     signed short combined[7];
     int i;
     for (i = 1; i < 15; i += 2) {
         combined[i/2] = (signed short)((data_array[i] << 8) | data_array[i+1]);
     }
-    clean_data[0] = combined[0] * 0.000061; 
+    clean_data[0] = combined[0] * 0.000061;
     clean_data[1] = combined[1] * 0.000061;
     clean_data[2] = combined[2] * 0.000061;
     clean_data[3] = 36.53 + (combined[3] / 340.0);
     clean_data[4] = (combined[4] * 0.00736) - 5.75;  
     clean_data[5] = (combined[5] * 0.00736) + 6;
     clean_data[6] = (combined[6] * 0.00736) - 8.75;
-
 }
