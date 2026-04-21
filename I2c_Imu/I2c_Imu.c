@@ -11,6 +11,7 @@ int main()
     uint8_t output;
     uint8_t imu_data[14]; 
     uint16_t combined_data[7];
+    sleep_ms(100);
     output = innit_imu();
     printf("output = %d\n", output); 
     int i; 
@@ -24,8 +25,8 @@ int main()
         i2c_write_blocking(i2c_default, IMU_ADDR, &imu_data[0], 1, true); 
         i2c_read_blocking(i2c_default, IMU_ADDR, &imu_data[1], 14, false);  
         combine_data(imu_data, combined_data);
-        for (i = 7; i > 0; i--) {
-            printf("%d\n", combined_data[i]);
+        for (i = 0; i < 14; i++) {
+            printf("%d\n", imu_data[i]);
         }
     }
 }
@@ -50,8 +51,8 @@ uint8_t innit_imu() {
 
      
     imu_register[0] = GYRO_CONFIG;
-    imu_register[1] = 0b11111000;
-    imu_register[2] = 0b11100000;
+    imu_register[1] = 0b11000;
+    imu_register[2] = 0b00000;
 
     i2c_write_blocking(i2c_default, IMU_ADDR, imu_register, 3, false); 
 
@@ -66,7 +67,7 @@ uint8_t innit_imu() {
 
 void combine_data(uint8_t *data_array, uint16_t *clean_data) {
     int i; 
-    for (i = 0; i>7; i++) {
-        clean_data[i] = ((data_array[i]<<8) | data_array[i*2]);
+    for (i = 0; i>14; i += 2) {
+       // clean_data[i/2] = ((data_array[i]<<8) | data_array[i + 1]);
     }
 }
