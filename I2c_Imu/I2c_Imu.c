@@ -1,4 +1,5 @@
 #include "library.h"
+#include "Oled_display.h"
 
 // I2C defines
 // This example will use I2C0 on GPIO8 (SDA) and GPIO9 (SCL) running at 400KHz.
@@ -72,16 +73,12 @@ void combine_data(uint8_t *data_array, double *clean_data) {
     for (i = 1; i < 15; i += 2) {
         combined[i/2] = (signed short)((data_array[i] << 8) | data_array[i+1]);
     }
+    clean_data[0] = combined[0] * 0.000061; 
+    clean_data[1] = combined[1] * 0.000061;
+    clean_data[2] = combined[2] * 0.000061;
+    clean_data[3] = 36.53 + (combined[3] / 340.0);
+    clean_data[4] = (combined[4] * 0.00736) - 5.75;  
+    clean_data[5] = (combined[5] * 0.00736) + 6;
+    clean_data[6] = (combined[6] * 0.00736) - 8.75;
 
-    for (i = 0; i < 7; i++) {
-        if (i < 3) {
-            clean_data[i] = combined[i] * 0.000061;
-        }
-        if (i == 3) {
-            clean_data[i] = 36.53 + (combined[i] / 340.0);
-        }
-        if (i >= 4) {
-            clean_data[i] = combined[i] * 0.00736;
-        }
-    }
 }

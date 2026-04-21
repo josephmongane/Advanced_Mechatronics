@@ -35,7 +35,7 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(I2c_Imu I2c_Imu.c )
+add_executable(I2c_Imu I2c_Imu.c ssd1306.c)
 
 pico_set_program_name(I2c_Imu "I2c_Imu")
 pico_set_program_version(I2c_Imu "0.1")
