@@ -43,7 +43,7 @@ int main()
         t = t + 0.1;
         float voltage = (sin(2 * 3.14159 * freq * t) + 1) * 3.3 / 2.0; 
         */
-        write_dac(0, 3.0); 
+        write_dac(0, 2.0); 
         sleep_ms(1000);
     }
 }
@@ -56,7 +56,7 @@ void write_dac(int chan, float voltage) {
     data[0] = (data[0] | ((chan & 0b1)<<7)); 
 
     // converting a float to a bianary quant and 
-    uint16_t bit_volt = voltage*1023 / 3.3;
+    uint16_t bit_volt = (int)(voltage*1023 / 3.3);
     data[0] = ( data[0] | ((bit_volt>>6) & 0b0000001111) );
     data[1] = (bit_volt << 2) & 0xFF; 
 
