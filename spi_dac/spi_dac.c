@@ -33,8 +33,6 @@ int main()
     gpio_set_function(PICO_DEFAULT_SPI_SCK_PIN, GPIO_FUNC_SPI);
     gpio_set_function(PICO_DEFAULT_SPI_TX_PIN, GPIO_FUNC_SPI);
 
-    while(!stdio_usb_connected()); 
-
     while (true) {
         // calll the write dac function.
         static float t = 0;
@@ -47,7 +45,6 @@ int main()
         float voltage_tri = fabsf((1 - (2 * t)) * 3.3); 
         write_dac(0, voltage_sin); 
         write_dac(1, voltage_tri); 
-        printf("voltage level set at %f\n", voltage_tri);
         sleep_ms(10);
     }
 }
