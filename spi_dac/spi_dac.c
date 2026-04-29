@@ -44,7 +44,7 @@ int main()
             t = 0; 
         }
         float voltage_sin = (sin(2 * 3.14159 * freq * t) + 1) * 3.3 / 2.0; 
-        float voltage_tri = fabsf((1 - (2 * t)/freq) * 3.3); 
+        float voltage_tri = fabsf((1 - (2 * t)) * 3.3); 
         write_dac(0, voltage_sin); 
         write_dac(1, voltage_tri); 
         printf("voltage level set at %f\n", voltage_tri);
