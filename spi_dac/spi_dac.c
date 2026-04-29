@@ -40,14 +40,19 @@ int main()
         static float t = 0;
         float freq = 2;
         t = t + 0.01;
-        float voltage = (sin(2 * 3.14159 * freq * t) + 1) * 3.3 / 2.0; 
-        write_dac(0, voltage); 
+        if (t > 1) {
+            t = 0; 
+        }
+        float voltage_sin = (sin(2 * 3.14159 * freq * t) + 1) * 3.3 / 2.0; 
+        float voltage_tri = fabsf((1 - (2 * t)/freq) * 3.3); 
+        write_dac(0, voltage_sin); 
+        write_dac(1, voltage_tri); 
+        printf("voltage level set at %f\n", voltage_tri);
         sleep_ms(10);
     }
 }
 
 void write_dac(int chan, float voltage) {
-    printf("voltage level set at %f\n", voltage);
     uint8_t data[2];
     data[0] = 0b01110000; 
     // Chosing the channel and the chip
@@ -57,8 +62,6 @@ void write_dac(int chan, float voltage) {
     uint16_t bit_volt = (int)(voltage*1023 / 3.3);
     data[0] = ( data[0] | ((bit_volt>>6) & 0b0000001111) );
     data[1] = (bit_volt << 2) & 0xFF; 
-
-    printf("data array = %d %d\n", data[0], data[1]);
 
     cs_select(PIN_CS);
     spi_write_blocking(SPI_PORT, data, 2); // where data is a uint8_t array with length len
