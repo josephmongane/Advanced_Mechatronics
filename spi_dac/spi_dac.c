@@ -37,14 +37,12 @@ int main()
 
     while (true) {
         // calll the write dac function.
-        /*
-        float t = 0;
+        static float t = 0;
         float freq = 2;
-        t = t + 0.1;
+        t = t + 0.01;
         float voltage = (sin(2 * 3.14159 * freq * t) + 1) * 3.3 / 2.0; 
-        */
-        write_dac(0, 2.0); 
-        sleep_ms(1000);
+        write_dac(0, voltage); 
+        sleep_ms(10);
     }
 }
 
