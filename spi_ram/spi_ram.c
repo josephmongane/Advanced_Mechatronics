@@ -11,7 +11,14 @@
 #define PIN_SCK  18
 #define PIN_MOSI 19
 
+#define READ_INSTRUCT 0b00000011
+#define WRITE_INSTRUCT 0b00000010
+#define BYTE_OPP 0b00000000
+#define SEQ_OPP 0b01000000
+#define PAGE_OPP 0b10000000
 
+static inline void cs_select(uint cs_pin);
+static inline void cs_deselect(uint cs_pin);
 
 int main()
 {
@@ -30,7 +37,24 @@ int main()
     // For more examples of SPI use see https://github.com/raspberrypi/pico-examples/tree/master/spi
 
     while (true) {
-        printf("Hello, world!\n");
+
+        cs_select(PIN_CS);
+        spi_write_blocking(SPI_PORT, data, 2); // where data is a uint8_t array with length len
+        cs_deselect(PIN_CS);
         sleep_ms(1000);
     }
+}
+
+
+
+static inline void cs_select(uint cs_pin) {
+    asm volatile("nop \n nop \n nop"); // FIXME Not
+    gpio_put(cs_pin, 0);
+    asm volatile("nop \n nop \n nop"); // FIXME Not
+}
+
+static inline void cs_deselect(uint cs_pin) {
+    asm volatile("nop \n nop \n nop"); // FIXME Not
+    gpio_put(cs_pin, 1);
+    asm volatile("nop \n nop \n nop"); // FIXME Not
 }
