@@ -1,51 +1,57 @@
 #include <stdio.h>
+#include <math.h>
 #include "pico/stdlib.h"
 #include "hardware/spi.h"
 
-// SPI Defines
-// We are going to use SPI 0, and allocate it to the following GPIO pins
-// Pins can be changed, see the GPIO function select table in the datasheet for information on GPIO assignments
+#define PICO_DEFAULT_SPI_RX_PIN 16
+#define PICO_DEFAULT_SPI_SCK_PIN 18
+#define PICO_DEFAULT_SPI_TX_PIN 19
+#define RAM_CS 17
+#define DAC_CS 20
 #define SPI_PORT spi0
-#define PIN_MISO 16
-#define PIN_CS   17
-#define PIN_SCK  18
-#define PIN_MOSI 19
 
 #define READ_INSTRUCT 0b00000011
 #define WRITE_INSTRUCT 0b00000010
+#define MODE_SET 0b00000001
 #define BYTE_OPP 0b00000000
 #define SEQ_OPP 0b01000000
 #define PAGE_OPP 0b10000000
 
+void write_dac(int data_index); 
 static inline void cs_select(uint cs_pin);
 static inline void cs_deselect(uint cs_pin);
+
+void spi_ram_init();
+void spi_ram_read(uint16_t addr, uint8_t *data_int, int len); 
+void spi_ram_write(uint16_t addr, uint8_t *data, int len); 
+void write_wave(); 
+
+union FloatInt {
+    float f;
+    uint16_t i;
+};
+
+// Add the hardware SPI initializations 
+
 
 int main()
 {
     stdio_init_all();
 
-    // SPI initialisation. This example will use SPI at 1MHz.
-    spi_init(SPI_PORT, 1000*1000);
-    gpio_set_function(PIN_MISO, GPIO_FUNC_SPI);
-    gpio_set_function(PIN_CS,   GPIO_FUNC_SIO);
-    gpio_set_function(PIN_SCK,  GPIO_FUNC_SPI);
-    gpio_set_function(PIN_MOSI, GPIO_FUNC_SPI);
-    
-    // Chip select is active-low, so we'll initialise it to a driven-high state
-    gpio_set_dir(PIN_CS, GPIO_OUT);
-    gpio_put(PIN_CS, 1);
-    // For more examples of SPI use see https://github.com/raspberrypi/pico-examples/tree/master/spi
-
     while (true) {
-
-        cs_select(PIN_CS);
-        spi_write_blocking(SPI_PORT, data, 2); // where data is a uint8_t array with length len
-        cs_deselect(PIN_CS);
-        sleep_ms(1000);
+        // calll the write dac function.
+        sleep_ms(10);
     }
 }
 
-
+void write_dac(int data_index) {
+    uint8_t val[2]; 
+    spi_ram_read(data_index, val, 2);
+    
+    cs_select(DAC_CS);
+    spi_write_blocking(SPI_PORT, val, 2); // where data is a uint8_t array with length len
+    cs_deselect(DAC_CS);
+}
 
 static inline void cs_select(uint cs_pin) {
     asm volatile("nop \n nop \n nop"); // FIXME Not
@@ -57,4 +63,81 @@ static inline void cs_deselect(uint cs_pin) {
     asm volatile("nop \n nop \n nop"); // FIXME Not
     gpio_put(cs_pin, 1);
     asm volatile("nop \n nop \n nop"); // FIXME Not
+}
+
+void spi_ram_init() {
+    // initializes the spi ram chip 
+        // initializing the SPI coms 
+    spi_init(spi_default, 1000 * 1000); // the baud, or bits per second
+
+    gpio_init(RAM_CS); 
+    gpio_set_dir(RAM_CS, GPIO_OUT);
+    gpio_init(DAC_CS); 
+    gpio_set_dir(DAC_CS, GPIO_OUT);
+    
+    gpio_set_function(PICO_DEFAULT_SPI_RX_PIN, GPIO_FUNC_SPI);
+    gpio_set_function(PICO_DEFAULT_SPI_SCK_PIN, GPIO_FUNC_SPI);
+    gpio_set_function(PICO_DEFAULT_SPI_TX_PIN, GPIO_FUNC_SPI);
+
+
+    uint8_t data[2];
+    data[0] = MODE_SET;
+    data[1] = BYTE_OPP;
+    cs_select(RAM_CS);
+    spi_write_blocking(SPI_PORT, data, 2); // where data is a uint8_t array with length len
+    cs_deselect(RAM_CS);
+}
+
+void spi_ram_read(uint16_t addr, uint8_t *data_in, int len) { //not using len
+    // read the data in the chip 
+    uint8_t packet[5];
+    packet[0] = READ_INSTRUCT;
+    packet[1] = addr >> 8;
+    packet[2] = addr & 0xFF; 
+    packet[3] = 0;
+    packet[4] = 0; 
+    uint8_t report[5]; 
+    cs_select(RAM_CS);
+    spi_write_read_blocking(SPI_PORT, packet, report, 5); // where data is a uint8_t array with length len
+    cs_deselect(RAM_CS);
+    data_in[0] = report[3];
+    data_in[1] = report[4];
+}
+
+void spi_ram_write(uint16_t addr, uint8_t *data, int len) {
+    // write data to the chip 
+    uint8_t write_package[5];
+    write_package[0] = WRITE_INSTRUCT;
+    write_package[1] = addr>>8; 
+    write_package[2] = addr&0xFF;
+    write_package[3] = data[0];
+    write_package[4] = data[1]; 
+
+    // Send the data
+    cs_select(RAM_CS);
+    spi_write_blocking(SPI_PORT, write_package, 5); // where data is a uint8_t array with length len
+    cs_deselect(RAM_CS);
+}
+
+void write_wave() {
+    int i; 
+    union FloatInt voltage; 
+    uint8_t data[2]; 
+    uint8_t addr = 0;
+    uint8_t chan = 0b0; 
+
+    for (i=0; i<= 1024; i++) {
+        uint16_t data_16  = ((chan&0b1)<<15); 
+        data_16 = data_16 & (0b111<<12); 
+
+        voltage.f = (sin(2 * 3.14159 * i / 1024) + 1) * 512.0; 
+
+        data_16 = data_16 | (0b111111111111 & voltage.i); 
+
+        data[0] = data_16 >> 8; 
+        data[1] = data_16 & 0xFF; 
+
+        spi_ram_write(addr, data, 2); 
+        addr = addr + 2; 
+    }
 }
