@@ -6,8 +6,8 @@
 #define PICO_DEFAULT_SPI_RX_PIN 16
 #define PICO_DEFAULT_SPI_SCK_PIN 18
 #define PICO_DEFAULT_SPI_TX_PIN 19
-#define RAM_CS 17
-#define DAC_CS 20
+#define RAM_CS 20
+#define DAC_CS 17
 #define SPI_PORT spi0
 
 #define READ_INSTRUCT 0b00000011
@@ -38,16 +38,27 @@ int main()
 {
     stdio_init_all();
 
+    while(!stdio_usb_connected()); 
+    sleep_ms(1000); 
+    printf("Start\n");
     spi_init;
-    write_wave(); 
+    printf("SPI Initialized\n"); 
+    //write_wave(); 
 
     while (true) {
         // calll the write dac function.
+
+        /*
         int i; 
-        for (i = 0; i <= 1024; i++) {
+        for (i = 0; i < 1023; i++) {
             write_dac(i); 
             sleep_ms(10);
         }
+        */
+
+        cs_select(RAM_CS);
+        cs_deselect(RAM_CS);
+        sleep_ms(100);
     }
 }
 
@@ -75,12 +86,15 @@ static inline void cs_deselect(uint cs_pin) {
 void spi_ram_init() {
     // initializes the spi ram chip 
         // initializing the SPI coms 
-    spi_init(spi_default, 1000 * 1000); // the baud, or bits per second
+    spi_init(spi_default, 10 * 1000); // the baud, or bits per second
 
     gpio_init(RAM_CS); 
     gpio_set_dir(RAM_CS, GPIO_OUT);
     gpio_init(DAC_CS); 
     gpio_set_dir(DAC_CS, GPIO_OUT);
+
+    gpio_put(DAC_CS, 1);
+    gpio_put(RAM_CS, 1);
     
     gpio_set_function(PICO_DEFAULT_SPI_RX_PIN, GPIO_FUNC_SPI);
     gpio_set_function(PICO_DEFAULT_SPI_SCK_PIN, GPIO_FUNC_SPI);
@@ -116,14 +130,18 @@ void spi_ram_write(uint16_t addr, uint8_t *data, int len) {
     uint8_t write_package[5];
     write_package[0] = WRITE_INSTRUCT;
     write_package[1] = addr>>8; 
-    write_package[2] = addr&0xFF;
+    write_package[2] = addr & 0xFF;
     write_package[3] = data[0];
     write_package[4] = data[1]; 
+
+    printf("Writing\n");
 
     // Send the data
     cs_select(RAM_CS);
     spi_write_blocking(SPI_PORT, write_package, 5); // where data is a uint8_t array with length len
     cs_deselect(RAM_CS);
+
+    printf("Complete\n");
 }
 
 void write_wave() {
@@ -133,7 +151,7 @@ void write_wave() {
     uint8_t addr = 0;
     uint8_t chan = 0b0; 
 
-    for (i=0; i <= 1024; i++) {
+    for (i = 0; i < 1024; i++) {
         uint16_t data_16  = ((chan&0b1)<<15); 
         data_16 = data_16 & (0b111<<12); 
 
