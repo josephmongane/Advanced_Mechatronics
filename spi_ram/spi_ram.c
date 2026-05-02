@@ -6,7 +6,7 @@
 #define PICO_DEFAULT_SPI_RX_PIN 16
 #define PICO_DEFAULT_SPI_SCK_PIN 18
 #define PICO_DEFAULT_SPI_TX_PIN 19
-#define RAM_CS 20
+#define RAM_CS 15
 #define DAC_CS 17
 #define SPI_PORT spi0
 
@@ -55,10 +55,13 @@ int main()
             sleep_ms(10);
         }
         */
+       printf("Writing to the ram\n");
+       gpio_put(RAM_CS, 0);
+       sleep_ms(10);
 
-        cs_select(RAM_CS);
-        cs_deselect(RAM_CS);
-        sleep_ms(100);
+       gpio_put(RAM_CS, 1);
+       printf("writing to the Ram\n");
+       sleep_ms(10);
     }
 }
 
