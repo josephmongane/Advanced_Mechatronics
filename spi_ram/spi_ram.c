@@ -43,7 +43,7 @@ int main()
     printf("Start\n");
     spi_init;
     printf("SPI Initialized\n"); 
-    //write_wave(); 
+    write_wave(); 
 
     while (true) {
         // calll the write dac function.
@@ -55,13 +55,6 @@ int main()
             sleep_ms(10);
         }
         */
-       printf("Writing to the ram\n");
-       gpio_put(RAM_CS, 0);
-       sleep_ms(10);
-
-       gpio_put(RAM_CS, 1);
-       printf("writing to the Ram\n");
-       sleep_ms(10);
     }
 }
 
