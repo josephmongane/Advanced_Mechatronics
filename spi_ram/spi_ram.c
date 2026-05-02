@@ -43,10 +43,9 @@ int main()
     write_wave(); 
     while (true) {
         //calll the write dac function.
-        uint8_t data_in[1024]; 
         int i; 
-        for (i = 0; i < 1024; i++) {
-            spi_ram_read(i, data_in, 5); 
+        for (i = 0; i < 1024; i+=2) {
+            write_dac(i);
             sleep_ms(10);
         }
 
@@ -55,9 +54,11 @@ int main()
 }
 
 void write_dac(int data_index) {
+    uint16_t read_val;
     uint8_t val[2]; 
     spi_ram_read(data_index, val, 2);
-    
+    read_val = ((val[0]<<8) | val[1]); 
+    printf("%d\n", read_val); 
     cs_select(DAC_CS);
     spi_write_blocking(SPI_PORT, val, 2); // where data is a uint8_t array with length len
     cs_deselect(DAC_CS);
@@ -118,10 +119,6 @@ void spi_ram_read(uint16_t addr, uint8_t *data_in, int len) { //not using len
     cs_deselect(RAM_CS);
     data_in[0] = report[3];
     data_in[1] = report[4];
-
-    read_data = (data_in[0] << 8);
-    read_data = (read_data | data_in[1]);
-    printf("%d\n", read_data);
 }
 
 void spi_ram_write(uint16_t addr, uint8_t *data, int len) {
@@ -145,16 +142,18 @@ void write_wave() {
     uint16_t volts;
     uint8_t data[2]; 
     uint16_t addr = 0;
-    uint8_t chan = 0b0; 
+    uint8_t chan = 0; 
 
     for (i = 0; i < 1024; i++) {
         uint16_t data_16  = ((chan&0b1)<<15); 
-        data_16 = data_16 & (0b111<<12); 
+        data_16 = data_16 | (0b111<<12); 
 
         voltage = (sin(2 * 3.141 * i / 1024) + 1) * 511.5; 
 
         volts = (int)voltage;
         data_16 = data_16 | (0b111111111111 & volts); 
+
+        printf("%d\n", data_16); 
 
         data[0] = data_16 >> 8; 
         data[1] = data_16 & 0xFF; 
@@ -162,4 +161,5 @@ void write_wave() {
         spi_ram_write(addr, data, 2); 
         addr = addr + 2; 
     }
+    printf("----------------BREAK------------------\n");
 }
