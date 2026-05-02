@@ -37,16 +37,14 @@ union FloatInt {
 int main()
 {
     stdio_init_all();
-
-    while(!stdio_usb_connected()); 
     spi_ram_init();
     write_wave(); 
     while (true) {
         //calll the write dac function.
         int i; 
-        for (i = 0; i < 1024; i+=2) {
+        for (i = 0; i < 2048; i+=2) {
             write_dac(i);
-            sleep_ms(10);
+            sleep_ms(1);
         }
 
 
@@ -58,11 +56,9 @@ void write_dac(int data_index) {
     uint8_t val[2]; 
     spi_ram_read(data_index, val, 2);
     read_val = ((val[0]<<8) | val[1]); 
-    printf("%d\n", read_val); 
     cs_select(DAC_CS);
     spi_write_blocking(SPI_PORT, val, 2); // where data is a uint8_t array with length len
     cs_deselect(DAC_CS);
-
 }
 
 static inline void cs_select(uint cs_pin) {
@@ -148,18 +144,14 @@ void write_wave() {
         uint16_t data_16  = ((chan&0b1)<<15); 
         data_16 = data_16 | (0b111<<12); 
 
-        voltage = (sin(2 * 3.141 * i / 1024) + 1) * 511.5; 
+        voltage = (sin(2 * 3.141 * i / 1024) + 1) * 3.3 * 511.5; 
 
         volts = (int)voltage;
         data_16 = data_16 | (0b111111111111 & volts); 
-
-        printf("%d\n", data_16); 
-
         data[0] = data_16 >> 8; 
         data[1] = data_16 & 0xFF; 
 
         spi_ram_write(addr, data, 2); 
         addr = addr + 2; 
     }
-    printf("----------------BREAK------------------\n");
 }
