@@ -38,9 +38,16 @@ int main()
 {
     stdio_init_all();
 
+    spi_init;
+    write_wave(); 
+
     while (true) {
         // calll the write dac function.
-        sleep_ms(10);
+        int i; 
+        for (i = 0; i <= 1024; i++) {
+            write_dac(i); 
+            sleep_ms(10);
+        }
     }
 }
 
@@ -126,7 +133,7 @@ void write_wave() {
     uint8_t addr = 0;
     uint8_t chan = 0b0; 
 
-    for (i=0; i<= 1024; i++) {
+    for (i=0; i <= 1024; i++) {
         uint16_t data_16  = ((chan&0b1)<<15); 
         data_16 = data_16 & (0b111<<12); 
 
