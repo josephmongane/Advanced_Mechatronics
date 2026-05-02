@@ -39,22 +39,18 @@ int main()
     stdio_init_all();
 
     while(!stdio_usb_connected()); 
-    sleep_ms(1000); 
-    printf("Start\n");
-    spi_init;
-    printf("SPI Initialized\n"); 
+    spi_ram_init();
     write_wave(); 
-
     while (true) {
-        // calll the write dac function.
-
-        /*
+        //calll the write dac function.
+        uint8_t data_in[1024]; 
         int i; 
-        for (i = 0; i < 1023; i++) {
-            write_dac(i); 
+        for (i = 0; i < 1024; i++) {
+            spi_ram_read(i, data_in, 5); 
             sleep_ms(10);
         }
-        */
+
+
     }
 }
 
@@ -65,6 +61,7 @@ void write_dac(int data_index) {
     cs_select(DAC_CS);
     spi_write_blocking(SPI_PORT, val, 2); // where data is a uint8_t array with length len
     cs_deselect(DAC_CS);
+
 }
 
 static inline void cs_select(uint cs_pin) {
@@ -82,7 +79,7 @@ static inline void cs_deselect(uint cs_pin) {
 void spi_ram_init() {
     // initializes the spi ram chip 
         // initializing the SPI coms 
-    spi_init(spi_default, 10 * 1000); // the baud, or bits per second
+    spi_init(spi_default, 1000 * 1000); // the baud, or bits per second
 
     gpio_init(RAM_CS); 
     gpio_set_dir(RAM_CS, GPIO_OUT);
@@ -98,15 +95,17 @@ void spi_ram_init() {
 
 
     uint8_t data[2];
+    int len = 2;
     data[0] = MODE_SET;
-    data[1] = BYTE_OPP;
+    data[1] = SEQ_OPP;
     cs_select(RAM_CS);
-    spi_write_blocking(SPI_PORT, data, 2); // where data is a uint8_t array with length len
+    spi_write_blocking(SPI_PORT, data, len); // where data is a uint8_t array with length len
     cs_deselect(RAM_CS);
 }
 
 void spi_ram_read(uint16_t addr, uint8_t *data_in, int len) { //not using len
     // read the data in the chip 
+    uint16_t read_data; 
     uint8_t packet[5];
     packet[0] = READ_INSTRUCT;
     packet[1] = addr >> 8;
@@ -119,6 +118,10 @@ void spi_ram_read(uint16_t addr, uint8_t *data_in, int len) { //not using len
     cs_deselect(RAM_CS);
     data_in[0] = report[3];
     data_in[1] = report[4];
+
+    read_data = (data_in[0] << 8);
+    read_data = (read_data | data_in[1]);
+    printf("%d\n", read_data);
 }
 
 void spi_ram_write(uint16_t addr, uint8_t *data, int len) {
@@ -126,34 +129,32 @@ void spi_ram_write(uint16_t addr, uint8_t *data, int len) {
     uint8_t write_package[5];
     write_package[0] = WRITE_INSTRUCT;
     write_package[1] = addr>>8; 
-    write_package[2] = addr & 0xFF;
+    write_package[2] = addr&0xFF;
     write_package[3] = data[0];
     write_package[4] = data[1]; 
-
-    printf("Writing\n");
 
     // Send the data
     cs_select(RAM_CS);
     spi_write_blocking(SPI_PORT, write_package, 5); // where data is a uint8_t array with length len
     cs_deselect(RAM_CS);
-
-    printf("Complete\n");
 }
 
 void write_wave() {
     int i; 
-    union FloatInt voltage; 
+    float voltage; 
+    uint16_t volts;
     uint8_t data[2]; 
-    uint8_t addr = 0;
+    uint16_t addr = 0;
     uint8_t chan = 0b0; 
 
     for (i = 0; i < 1024; i++) {
         uint16_t data_16  = ((chan&0b1)<<15); 
         data_16 = data_16 & (0b111<<12); 
 
-        voltage.f = (sin(2 * 3.14159 * i / 1024) + 1) * 512.0; 
+        voltage = (sin(2 * 3.141 * i / 1024) + 1) * 511.5; 
 
-        data_16 = data_16 | (0b111111111111 & voltage.i); 
+        volts = (int)voltage;
+        data_16 = data_16 | (0b111111111111 & volts); 
 
         data[0] = data_16 >> 8; 
         data[1] = data_16 & 0xFF; 
