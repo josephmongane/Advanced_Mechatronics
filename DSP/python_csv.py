@@ -13,7 +13,10 @@ with open('DSP/sigA.csv') as f:
         data1.append(float(row[1])) # second column
         # data2.append(float(row[2])) # third column
 
+sample_rate = (len(data1))/(t[-1])
+
 for i in range(len(t)):
     # print the data to verify it was read
     print(str(t[i]) + ", " + str(data1[i]) + ", ")
+
 
