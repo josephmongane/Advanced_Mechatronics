@@ -1,13 +1,20 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
 
+#define BUTTON 16
+
 
 int main()
 {
     stdio_init_all();
 
+    gpio_init(BUTTON); 
+    gpio_set_dir(BUTTON, GPIO_IN);
+
+    while(!stdio_usb_connected())
+
     while (true) {
-        printf("Hello, world!\n");
-        sleep_ms(1000);
+        printf("%d\n", gpio_get(BUTTON));
+        sleep_ms(10);
     }
 }
