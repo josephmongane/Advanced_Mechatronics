@@ -19,9 +19,16 @@ Run with:
 Or install pygame-zero and use:
     python -m pgzero space_flapper.py
 """
-
 import pgzrun
 import random
+
+import serial
+
+ser = serial.Serial(
+    '/dev/tty.usbmodem101',
+    baudrate=115200,   # must match your device
+    timeout=1
+)
 # ─────────────────────────────────────────────────────────────────────────────
 # WINDOW & WORLD CONSTANTS
 # ─────────────────────────────────────────────────────────────────────────────
@@ -147,6 +154,7 @@ def check_collisions():
 # ─────────────────────────────────────────────────────────────────────────────
 
 def update():
+    check_serial()
     state.frame_count += 1
 
     # ── Scrolling background ──────────────────────────────────────────────────
@@ -257,22 +265,21 @@ def draw():
     draw_hud()
 
 # ─────────────────────────────────────────────────────────────────────────────
-# INPUT HANDLERS  (keyboard / mouse → control functions)
+# INPUT HANDLERS  Pico Inputs
 # ─────────────────────────────────────────────────────────────────────────────
 
-def on_key_down(key):
-    if key == keys.SPACE or key == keys.UP or key == keys.W:
-        if state.alive or not state.started:
-            action_flap()
-        else:
-            action_restart()
+ser.reset_input_buffer()
 
-def on_mouse_down(button):
-    if button == mouse.LEFT:
-        if state.alive or not state.started:
-            action_flap()
-        else:
-            action_restart()
+
+def check_serial():
+    if ser.in_waiting > 0:
+        line = ser.readline().decode('utf-8').strip()
+        if line == "1":
+            if state.alive or not state.started:
+                action_flap()
+            else:
+                action_restart()
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # ENTRY POINT

@@ -11,10 +11,8 @@ int main()
     gpio_init(BUTTON); 
     gpio_set_dir(BUTTON, GPIO_IN);
 
-    while(!stdio_usb_connected())
-
     while (true) {
         printf("%d\n", gpio_get(BUTTON));
-        sleep_ms(10);
+        sleep_ms(100);
     }
 }
