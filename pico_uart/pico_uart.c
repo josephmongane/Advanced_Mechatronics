@@ -46,15 +46,12 @@ int main() {
     sleep_ms(10);
 
     char send_string[1000]; 
-    sprintf(send_string, "Hello %d\r\n", 5);
+    sprintf(send_string, "hello world %d\r\n\0", 550);
     uart_puts(uart0, send_string); 
 
     while (true) {
-        uart_read_string(buffer, sizeof(buffer));
-        printf("Received: %s\n", buffer);
-        
-        // Only send again after we've finished reading
-        uart_puts(UART_ID, send_string);
+        sleep_ms(100);
+        uart_puts(uart0, send_string); 
     }
 
     return 0;

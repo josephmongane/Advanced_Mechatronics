@@ -21,10 +21,6 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "stm32c0xx_hal.h"
-#include "stm32c0xx_hal_def.h"
-#include "stm32c0xx_hal_uart.h"
-#include <stdio.h>
 #include <string.h>
 /* USER CODE END Includes */
 
@@ -81,7 +77,6 @@ int main(void)
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
-
   /* USER CODE BEGIN Init */
 
   /* USER CODE END Init */
@@ -120,44 +115,35 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1) {
-    char m[100]; 
-    sprintf(m, "%d\r\n", 500);
-    printf("Sending: %s\n", m);
 
-    HAL_UART_Transmit(&huart1, (uint8_t *)m, strlen(m), 100000);  
+  while (1)
+  {   
+    char rx_message[100];
 
-    int rx_number; 
-    char rx_message[100]; 
-    char buffer[1000];
+    HAL_UART_Receive(&huart1, (uint8_t *)rx_message, 100, 100);
+    char buffer[1000]; 
     int index = 0;
-    int i;
-
-    printf("Receiving Message\n"); 
-
-    HAL_UART_Receive(&huart1, (uint8_t *)rx_message, 100, 1000);
-
-    for (i=0; i < strlen(rx_message); i++) {
+    for (int i=0; i < strlen(rx_message); i++) {
       if (rx_message[i] == '\n') {
-        sscanf(buffer, "%d", &rx_number); 
-        printf("Received %d\n", rx_number);
+        scanf(buffer, "%s", rx_message); 
+        printf("Received full message: %s\n", rx_message);
       }
       else {
-        buffer[index] = rx_message[i]; 
-        printf("Saving character %c\n", rx_message[i]);
-        index++; 
-        if (index == 100) {
-          index =0; 
+        buffer[index] = rx_message[i];
+        index++;
+        if (index == 1000) {
+          index = 0; 
         }
       }
     }
-
-  }
+    printf("Recieved: %s\n", buffer);
+    HAL_Delay(100);
     /* USER CODE END WHILE */
     /* USER CODE BEGIN 3 */
+  }
   /* USER CODE END 3 */
 }
-
+  /* USER CODE END 3 */
 /**
   * @brief System Clock Configuration
   * @retval None
