@@ -44,7 +44,7 @@ int main() {
     while(!stdio_usb_connected());
 
     sleep_ms(10);
-
+    char received_string[100];
     char send_string[1000]; 
     sprintf(send_string, "hello world %d\r\n\0", 550);
     uart_puts(uart0, send_string); 
@@ -52,6 +52,8 @@ int main() {
     while (true) {
         sleep_ms(100);
         uart_puts(uart0, send_string); 
+        uart_read_string(received_string, 100); 
+        printf("Received String %s\n", received_string); 
     }
 
     return 0;
