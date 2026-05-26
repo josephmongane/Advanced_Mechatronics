@@ -19,7 +19,7 @@ int main()
     while(!stdio_usb_connected()); 
     while (true) {
         // testing the board 
-        unsigned int force; 
+        int force; 
         force = read_bits(); 
         printf("Returned value: %d\n", force); 
         // Wait for user to send a n value
