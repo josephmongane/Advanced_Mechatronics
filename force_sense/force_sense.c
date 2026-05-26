@@ -5,7 +5,7 @@
 #define SCK_PIN 16
 #define DT_PIN 17
 #define SIGNAL 18
-#define clock_time_us 50
+#define clock_time_us 10
 
 
 void init_hx711(); 
@@ -16,6 +16,7 @@ int main()
 {
     stdio_init_all();
     init_hx711(); 
+    while(!stdio_usb_connected()); 
     while (true) {
         // testing the board 
         unsigned int force; 
@@ -67,6 +68,6 @@ int read_bits() {
     if (val & 0x800000) {
         val |= 0xFF000000;
     }
-    return val; 
+    return (int)val; 
 }
 //
