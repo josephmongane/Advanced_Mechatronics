@@ -12,28 +12,37 @@ void init_hx711();
 int read_bits();
 
 
-int main()
-{
+int main() {
     stdio_init_all();
     init_hx711(); 
     while(!stdio_usb_connected()); 
     while (true) {
-        // testing the board 
-
-        /*
-        int force; 
-        force = read_bits(); 
-        printf("Returned value: %d\n", force); 
-        */
-
         // Wait for user to send a n value
         int steps; 
         scanf("%d", &steps); 
-        // Read N times 
-        printf("steps %d\n", steps);
-        // Filter data 
 
-        // Print to user orignial data, filtered data, and time in ms
+        // Read N times 
+        int i;
+        int raw_data[steps];
+        float filtered_data[steps];
+
+        for (i = 0; i < steps; i++) {
+            raw_data[i] = read_bits(); 
+        }
+
+        // Filter data using IIR (exponential moving average)
+        float alpha = 0.2f; // Smoothing factor: 0 < alpha < 1
+        filtered_data[0] = (float)raw_data[0];
+        for (i = 1; i < steps; i++) {
+            filtered_data[i] = alpha * (float)raw_data[i] + (1.0f - alpha) * filtered_data[i - 1];
+        }
+
+        // Print to user: original data, filtered data, and time
+        printf("%-10s %-15s %-15s\n", "Time(ms)", "Raw Data", "Filtered Data");
+        printf("----------------------------------------------\n");
+        for (i = 0; i < steps; i++) {
+            printf("%-10d %-15d %-15.2f\n", i * 1000, raw_data[i], filtered_data[i]);
+        }
 
         sleep_ms(1000);
     }
