@@ -38,10 +38,8 @@ int main() {
         }
 
         // Print to user: original data, filtered data, and time
-        printf("%-10s %-15s %-15s\n", "Time(ms)", "Raw Data", "Filtered Data");
-        printf("----------------------------------------------\n");
         for (i = 0; i < steps; i++) {
-            printf("%-10d %-15d %-15.2f\n", i * 1000, raw_data[i], filtered_data[i]);
+            printf("%d %d %5.2f\n", i * 1000, raw_data[i], filtered_data[i]);
         }
 
         sleep_ms(1000);
