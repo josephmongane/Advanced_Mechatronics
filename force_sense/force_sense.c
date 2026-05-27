@@ -4,7 +4,6 @@
 
 #define SCK_PIN 16
 #define DT_PIN 17
-#define SIGNAL 18
 #define clock_time_us 10
 
 
@@ -42,7 +41,7 @@ int main() {
             printf("%d %d %5.2f\n", i * 1000, raw_data[i], filtered_data[i]);
         }
 
-        sleep_ms(1000);
+        sleep_ms(10);
     }
 }
 
@@ -80,6 +79,6 @@ int read_bits() {
     if (val & 0x800000) {
         val |= 0xFF000000;
     }
-    return (int)val; 
+    return (int)(-1 * val); 
 }
 //
