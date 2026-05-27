@@ -19,13 +19,18 @@ int main()
     while(!stdio_usb_connected()); 
     while (true) {
         // testing the board 
+
+        /*
         int force; 
         force = read_bits(); 
         printf("Returned value: %d\n", force); 
+        */
+
         // Wait for user to send a n value
-
+        int steps; 
+        scanf("%d", &steps); 
         // Read N times 
-
+        printf("steps %d\n", steps);
         // Filter data 
 
         // Print to user orignial data, filtered data, and time in ms
