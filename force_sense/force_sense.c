@@ -13,34 +13,34 @@ int read_bits();
 
 int main() {
     stdio_init_all();
-    init_hx711(); 
-    while(!stdio_usb_connected()); 
-    while (true) {
-        // Wait for user to send a n value
-        int steps; 
-        scanf("%d", &steps); 
+    init_hx711();
+    while(!stdio_usb_connected());
 
-        // Read N times 
+    absolute_time_t start_time = get_absolute_time(); // reference point
+
+    while (true) {
+        int steps;
+        scanf("%d", &steps);
+
         int i;
         int raw_data[steps];
         float filtered_data[steps];
+        uint32_t timestamps[steps]; // store timestamps in ms
 
         for (i = 0; i < steps; i++) {
-            raw_data[i] = read_bits(); 
+            timestamps[i] = absolute_time_diff_us(start_time, get_absolute_time()) / 1000; // ms since start
+            raw_data[i] = read_bits();
         }
-
-        // Filter data using IIR (exponential moving average)
-        float alpha = 0.2f; // Smoothing factor: 0 < alpha < 1
+        // IIR filter
+        float alpha = 0.05f;
         filtered_data[0] = (float)raw_data[0];
         for (i = 1; i < steps; i++) {
             filtered_data[i] = alpha * (float)raw_data[i] + (1.0f - alpha) * filtered_data[i - 1];
         }
-
-        // Print to user: original data, filtered data, and time
+        // Print: time since program start (ms), raw, filtered
         for (i = 0; i < steps; i++) {
-            printf("%d %d %5.2f\n", i * 1000, raw_data[i], filtered_data[i]);
+            printf("%d %d %5.2f\n", timestamps[i], raw_data[i], filtered_data[i]);
         }
-
         sleep_ms(10);
     }
 }
